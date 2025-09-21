@@ -15,7 +15,7 @@ const Hero = () => {
         {/* Full Width Background Image */}
         <div className="absolute inset-0">
           <img
-            src="/src/images/hero.jpg"
+            src="/images/hero.jpg"
             alt="Modern chair with plant"
             className="w-full h-full object-cover object-center"
           />
