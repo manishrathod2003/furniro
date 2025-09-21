@@ -1,7 +1,7 @@
 // components/Hero/Hero.jsx
 import React from "react";
 import { motion } from "framer-motion";
-import './images';
+
 
 const Hero = () => {
   return (
