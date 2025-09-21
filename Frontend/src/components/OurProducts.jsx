@@ -114,7 +114,7 @@ const OurProducts = () => {
         quantity: 1,
         size: "L",
         color: "Default",
-        image: product.image || "/src/images/cafe_chair1.png",
+        image: product.image || "/images/cafe_chair1.png",
       };
 
       const response = await api.addToCart(cartItem);
@@ -433,11 +433,11 @@ const OurProducts = () => {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={product.image || "/src/images/cafe_chair1.png"}
+                      src={product.image || "/images/cafe_chair1.png"}
                       alt={product.name}
                       className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        e.target.src = "/src/images/cafe_chair1.png";
+                        e.target.src = "/images/cafe_chair1.png";
                       }}
                       onClick={() => handleProductClick(product)}
                     />

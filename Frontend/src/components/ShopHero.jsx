@@ -9,7 +9,7 @@ const ShopHero = () => {
       animate={{ opacity: 1 }}
       className="relative h-80 bg-cover bg-center flex items-center justify-center"
       style={{ 
-        backgroundImage: "url('/src/images/shop.jpg')",
+        backgroundImage: "url('/images/shop.jpg')",
       }}
     >
       <div className="text-center">

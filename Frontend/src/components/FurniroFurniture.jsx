@@ -55,11 +55,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-workspace-left.jpg"
+                src="/images/gallery-workspace-left.jpg"
                 alt="Modern workspace with laptop"
                 className="w-full h-80 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/living.png";
+                  e.target.src = "/images/living.png";
                 }}
               />
             </motion.div>
@@ -69,11 +69,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-chair-setup.jpg"
+                src="/images/gallery-chair-setup.jpg"
                 alt="Cozy chair corner"
                 className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/bedroom.png";
+                  e.target.src = "/images/bedroom.png";
                 }}
               />
             </motion.div>
@@ -86,11 +86,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-workspace.jpg"
+                src="/images/gallery-workspace.jpg"
                 alt="Clean workspace setup"
                 className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/dining.png";
+                  e.target.src = "/images/dining.png";
                 }}
               />
             </motion.div>
@@ -100,11 +100,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-minimalist.jpg"
+                src="/images/gallery-minimalist.jpg"
                 alt="Minimalist decor"
                 className="w-full h-72 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/living.png";
+                  e.target.src = "/images/living.png";
                 }}
               />
             </motion.div>
@@ -117,11 +117,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg relative"
             >
               <img
-                src="/src/images/gallery-featured-dining.jpg"
+                src="/images/gallery-featured-dining.jpg"
                 alt="Featured dining setup"
                 className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/dining.png";
+                  e.target.src = "/images/dining.png";
                 }}
               />
               {/* Yellow Border Overlay */}
@@ -136,11 +136,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-bedroom.jpg"
+                src="/images/gallery-bedroom.jpg"
                 alt="Modern bedroom"
                 className="w-full h-60 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/bedroom.png";
+                  e.target.src = "/images/bedroom.png";
                 }}
               />
             </motion.div>
@@ -150,11 +150,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-decor.jpg"
+                src="/images/gallery-decor.jpg"
                 alt="Home decoration"
                 className="w-full h-52 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/living.png";
+                  e.target.src = "/images/living.png";
                 }}
               />
             </motion.div>
@@ -167,11 +167,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/src/images/gallery-kitchen.jpg"
+                src="/images/gallery-kitchen.jpg"
                 alt="Kitchen interior"
                 className="w-full h-72 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/dining.png";
+                  e.target.src = "/images/dining.png";
                 }}
               />
             </motion.div>
@@ -181,11 +181,11 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg relative"
             >
               <img
-                src="/src/images/gallery-kitchen-tools.jpg"
+                src="/images/gallery-kitchen-tools.jpg"
                 alt="Kitchen setup"
                 className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = "/src/images/bedroom.png";
+                  e.target.src = "/images/bedroom.png";
                 }}
               />
               {/* Name Tag */}
@@ -213,11 +213,11 @@ const FurniroFurniture = () => {
               }`}
             >
               <img
-                src={`/src/images/gallery-mobile-${index + 1}.jpg`}
+                src={`/images/gallery-mobile-${index + 1}.jpg`}
                 alt={`Funiro furniture setup ${index + 1}`}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
-                  e.target.src = index % 2 === 0 ? "/src/images/living.png" : "/src/images/bedroom.png";
+                  e.target.src = index % 2 === 0 ? "/images/living.png" : "/images/bedroom.png";
                 }}
               />
               {index === 5 && (

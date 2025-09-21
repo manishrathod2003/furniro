@@ -6,17 +6,17 @@ const BrowseTheRange = () => {
   const categories = [
     {
       name: "Dining",
-      image: "/src/images/dining.png",
+      image: "/images/dining.png",
       alt: "Dining"
     },
     {
       name: "Living",
-      image: "/src/images/living.png",
+      image: "/images/living.png",
       alt: "Living"
     },
     {
       name: "Bedroom",
-      image: "/src/images/bedroom.png",
+      image: "/images/bedroom.png",
       alt: "Bedroom"
     }
   ];

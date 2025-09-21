@@ -11,29 +11,29 @@ const RoomsInspiration = () => {
       id: 1,
       category: "Bed Room",
       title: "Inner Peace",
-      image: "/src/images/bedroom-inspiration.jpg",
-      fallback: "/src/images/bedroom.png"
+      image: "/images/bedroom-inspiration.jpg",
+      fallback: "/images/bedroom.png"
     },
     {
       id: 2,
       category: "Living Room", 
       title: "Modern Comfort",
-      image: "/src/images/living-inspiration.jpg",
-      fallback: "/src/images/living.png"
+      image: "/images/living-inspiration.jpg",
+      fallback: "/images/living.png"
     },
     {
       id: 3,
       category: "Dining Room",
       title: "Family Gathering", 
-      image: "/src/images/dining-inspiration.jpg",
-      fallback: "/src/images/dining.png"
+      image: "/images/dining-inspiration.jpg",
+      fallback: "/images/dining.png"
     },
     {
       id: 4,
       category: "Kitchen",
       title: "Cozy Space", 
-      image: "/src/images/kitchen-inspiration.jpg",
-      fallback: "/src/images/dining.png"
+      image: "/images/kitchen-inspiration.jpg",
+      fallback: "/images/dining.png"
     }
   ];
 
@@ -124,11 +124,11 @@ const RoomsInspiration = () => {
                   className="h-60 rounded-lg overflow-hidden shadow-lg"
                 >
                   <img
-                    src="/src/images/living-inspiration.jpg"
+                    src="/images/living-inspiration.jpg"
                     alt="Living room inspiration"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = "/src/images/living.png";
+                      e.target.src = "/images/living.png";
                     }}
                   />
                 </motion.div>
@@ -137,11 +137,11 @@ const RoomsInspiration = () => {
                   className="h-48 rounded-lg overflow-hidden shadow-lg"
                 >
                   <img
-                    src="/src/images/dining-inspiration.jpg"
+                    src="/images/dining-inspiration.jpg"
                     alt="Dining room inspiration"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = "/src/images/dining.png";
+                      e.target.src = "/images/dining.png";
                     }}
                   />
                 </motion.div>
