@@ -1,22 +1,27 @@
-// src/services/api.js - Fixed CORS issues
+// src/services/api.js - Fixed routing and CORS issues
 import axios from 'axios';
 
-// Use environment variable or fallback to local development
-const API_URL = import.meta.env.VITE_API_URL ;
+// Use environment variable with proper fallback
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+console.log('API Configuration:', {
+    VITE_API_URL: import.meta.env.VITE_API_URL,
+    API_URL,
+    NODE_ENV: import.meta.env.NODE_ENV
+});
 
 // Create axios instance with proper configuration
 const apiClient = axios.create({
-    baseURL: `${API_URL}/api`,
-    timeout: 15000, // Increased timeout
+    baseURL: `${API_URL}/api`, // This creates: http://localhost:5000/api
+    timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
-    // Add CORS configuration
     withCredentials: false,
 });
 
-// Request interceptor to add auth headers if needed
+// Request interceptor
 apiClient.interceptors.request.use(
     (config) => {
         // Add auth token if available
@@ -26,12 +31,17 @@ apiClient.interceptors.request.use(
         }
         
         // Log request for debugging
-        console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+        console.log(`🚀 API Request:`, {
+            method: config.method?.toUpperCase(),
+            url: `${config.baseURL}${config.url}`,
+            data: config.data,
+            params: config.params
+        });
         
         return config;
     },
     (error) => {
-        console.error('Request Error:', error);
+        console.error('❌ Request Error:', error);
         return Promise.reject(error);
     }
 );
@@ -39,20 +49,21 @@ apiClient.interceptors.request.use(
 // Response interceptor with better error handling
 apiClient.interceptors.response.use(
     (response) => {
-        console.log('API Response:', response.status, response.statusText);
+        console.log('✅ API Response:', {
+            status: response.status,
+            url: response.config.url,
+            data: response.data
+        });
         return response.data;
     },
     (error) => {
-        console.error('API Error Details:', {
+        console.error('❌ API Error:', {
             message: error.message,
             status: error.response?.status,
             statusText: error.response?.statusText,
-            data: error.response?.data,
-            config: {
-                url: error.config?.url,
-                method: error.config?.method,
-                baseURL: error.config?.baseURL
-            }
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.response?.data
         });
 
         // Handle specific error types
@@ -61,11 +72,11 @@ apiClient.interceptors.response.use(
         }
         
         if (error.message === 'Network Error') {
-            throw new Error('Network error. Check your internet connection or API server.');
+            throw new Error('Cannot connect to server. Please check if the backend is running.');
         }
 
         if (error.response?.status === 404) {
-            throw new Error('API endpoint not found.');
+            throw new Error(`API endpoint not found: ${error.config?.url}`);
         }
 
         if (error.response?.status >= 500) {
@@ -81,31 +92,64 @@ apiClient.interceptors.response.use(
     }
 );
 
-// Fallback function for when API is not available
-const createMockResponse = (data) => {
-    console.warn('Using mock data - API not available');
+// Enhanced fallback function
+const createMockResponse = (data, message = 'Using mock data - API unavailable') => {
+    console.warn('⚠️ ' + message);
     return Promise.resolve(data);
 };
 
 export const api = {
+    // Health check to test connectivity
+    healthCheck: async () => {
+        try {
+            console.log('🔍 Testing API connectivity...');
+            const response = await apiClient.get('/health');
+            console.log('✅ API is reachable');
+            return response;
+        } catch (error) {
+            console.error('❌ API health check failed:', error.message);
+            return { 
+                success: false, 
+                message: 'API not available',
+                error: error.message 
+            };
+        }
+    },
+
     // PRODUCT FUNCTIONS
     getProducts: async (params = {}) => {
         try {
+            // GET /api/products
             const response = await apiClient.get('/products', { params });
             return response;
         } catch (error) {
-            console.error('Error fetching products:', error);
+            console.error('Error fetching products:', error.message);
             
-            // Fallback to mock data if needed
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            // Fallback to mock data
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
-                    data: [],
-                    message: 'Mock data - API unavailable',
+                    data: [
+                        {
+                            id: 1,
+                            name: 'Sample Product 1',
+                            price: 99.99,
+                            image: '/api/placeholder/300/300',
+                            category: 'Sample Category'
+                        },
+                        {
+                            id: 2,
+                            name: 'Sample Product 2',
+                            price: 149.99,
+                            image: '/api/placeholder/300/300',
+                            category: 'Sample Category'
+                        }
+                    ],
+                    message: 'Mock product data',
                     pagination: {
                         currentPage: params.page || 1,
                         totalPages: 1,
-                        totalItems: 0,
+                        totalItems: 2,
                         itemsPerPage: params.limit || 8
                     }
                 });
@@ -117,10 +161,29 @@ export const api = {
 
     getProductById: async (id) => {
         try {
+            // GET /api/products/:id
             const response = await apiClient.get(`/products/${id}`);
             return response;
         } catch (error) {
-            console.error('Error fetching product by ID:', error);
+            console.error(`Error fetching product ${id}:`, error.message);
+            
+            // Fallback for single product
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
+                return createMockResponse({
+                    success: true,
+                    data: {
+                        id: id,
+                        name: `Sample Product ${id}`,
+                        price: 99.99,
+                        description: 'This is a sample product description.',
+                        image: '/api/placeholder/400/400',
+                        category: 'Sample Category',
+                        inStock: true
+                    },
+                    message: 'Mock product data'
+                });
+            }
+            
             throw error;
         }
     },
@@ -128,17 +191,17 @@ export const api = {
     // CART FUNCTIONS
     getCartItems: async (userId) => {
         try {
+            // GET /api/cart/:userId
             const response = await apiClient.get(`/cart/${userId}`);
             return response;
         } catch (error) {
-            console.error('Error fetching cart items:', error);
+            console.error('Error fetching cart items:', error.message);
             
-            // Fallback for cart
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
                     data: [],
-                    message: 'Mock cart data'
+                    message: 'Mock cart data - empty cart'
                 });
             }
             
@@ -148,17 +211,17 @@ export const api = {
 
     addToCart: async (cartItem) => {
         try {
+            // POST /api/cart/add
             const response = await apiClient.post('/cart/add', cartItem);
             return response;
         } catch (error) {
-            console.error('Error adding to cart:', error);
+            console.error('Error adding to cart:', error.message);
             
-            // Fallback for add to cart
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
-                    message: 'Item added to cart (mock)',
-                    data: cartItem
+                    message: 'Item added to cart (mock mode)',
+                    data: { ...cartItem, id: Date.now() }
                 });
             }
             
@@ -168,43 +231,46 @@ export const api = {
 
     updateCartQuantity: async (itemId, quantity) => {
         try {
+            // PUT /api/cart/update/:itemId
             const response = await apiClient.put(`/cart/update/${itemId}`, { quantity });
             return response;
         } catch (error) {
-            console.error('Error updating cart quantity:', error);
+            console.error('Error updating cart quantity:', error.message);
             throw error;
         }
     },
 
     removeFromCart: async (itemId) => {
         try {
+            // DELETE /api/cart/remove/:itemId
             const response = await apiClient.delete(`/cart/remove/${itemId}`);
             return response;
         } catch (error) {
-            console.error('Error removing from cart:', error);
+            console.error('Error removing from cart:', error.message);
             throw error;
         }
     },
 
     clearCart: async (userId) => {
         try {
+            // DELETE /api/cart/clear/:userId
             const response = await apiClient.delete(`/cart/clear/${userId}`);
             return response;
         } catch (error) {
-            console.error('Error clearing cart:', error);
+            console.error('Error clearing cart:', error.message);
             throw error;
         }
     },
 
     getCartCount: async (userId) => {
         try {
+            // GET /api/cart/count/:userId
             const response = await apiClient.get(`/cart/count/${userId}`);
             return response;
         } catch (error) {
-            console.error('Error fetching cart count:', error);
+            console.error('Error fetching cart count:', error.message);
             
-            // Fallback for cart count
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
                     count: 0
@@ -218,17 +284,17 @@ export const api = {
     // WISHLIST FUNCTIONS
     getUserWishlist: async (userId) => {
         try {
+            // GET /api/wishlist/:userId
             const response = await apiClient.get(`/wishlist/${userId}`);
             return response;
         } catch (error) {
-            console.error('Error fetching wishlist:', error);
+            console.error('Error fetching wishlist:', error.message);
             
-            // Fallback for wishlist
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
                     data: [],
-                    message: 'Mock wishlist data'
+                    message: 'Mock wishlist data - empty wishlist'
                 });
             }
             
@@ -238,19 +304,19 @@ export const api = {
 
     addToWishlist: async (userId, productId) => {
         try {
+            // POST /api/wishlist/add
             const response = await apiClient.post('/wishlist/add', {
                 userId,
                 productId
             });
             return response;
         } catch (error) {
-            console.error('Error adding to wishlist:', error);
+            console.error('Error adding to wishlist:', error.message);
             
-            // Fallback for add to wishlist
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
-                    message: 'Added to wishlist (mock)',
+                    message: 'Added to wishlist (mock mode)',
                     data: { userId, productId }
                 });
             }
@@ -261,19 +327,19 @@ export const api = {
 
     removeFromWishlist: async (userId, productId) => {
         try {
+            // POST /api/wishlist/remove
             const response = await apiClient.post('/wishlist/remove', {
                 userId,
                 productId
             });
             return response;
         } catch (error) {
-            console.error('Error removing from wishlist:', error);
+            console.error('Error removing from wishlist:', error.message);
             
-            // Fallback for remove from wishlist
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
-                    message: 'Removed from wishlist (mock)',
+                    message: 'Removed from wishlist (mock mode)',
                     data: { userId, productId }
                 });
             }
@@ -284,19 +350,19 @@ export const api = {
 
     toggleWishlist: async (userId, productId) => {
         try {
+            // POST /api/wishlist/toggle
             const response = await apiClient.post('/wishlist/toggle', {
                 userId,
                 productId
             });
             return response;
         } catch (error) {
-            console.error('Error toggling wishlist:', error);
+            console.error('Error toggling wishlist:', error.message);
             
-            // Fallback for toggle wishlist
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
-                    message: 'Wishlist toggled (mock)',
+                    message: 'Wishlist toggled (mock mode)',
                     data: { userId, productId, added: true }
                 });
             }
@@ -307,23 +373,24 @@ export const api = {
 
     clearWishlist: async (userId) => {
         try {
+            // DELETE /api/wishlist/clear/:userId
             const response = await apiClient.delete(`/wishlist/clear/${userId}`);
             return response;
         } catch (error) {
-            console.error('Error clearing wishlist:', error);
+            console.error('Error clearing wishlist:', error.message);
             throw error;
         }
     },
 
     getWishlistCount: async (userId) => {
         try {
+            // GET /api/wishlist/count/:userId
             const response = await apiClient.get(`/wishlist/count/${userId}`);
             return response;
         } catch (error) {
-            console.error('Error fetching wishlist count:', error);
+            console.error('Error fetching wishlist count:', error.message);
             
-            // Fallback for wishlist count
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
                     count: 0
@@ -336,15 +403,15 @@ export const api = {
 
     checkWishlistStatus: async (userId, productIds) => {
         try {
+            // POST /api/wishlist/check/:userId
             const response = await apiClient.post(`/wishlist/check/${userId}`, {
                 productIds
             });
             return response;
         } catch (error) {
-            console.error('Error checking wishlist status:', error);
+            console.error('Error checking wishlist status:', error.message);
             
-            // Fallback for wishlist status
-            if (error.message.includes('Network error') || error.message.includes('CORS')) {
+            if (error.message.includes('Cannot connect') || error.message.includes('Network Error')) {
                 return createMockResponse({
                     success: true,
                     data: productIds.reduce((acc, id) => ({ ...acc, [id]: false }), {})
@@ -353,18 +420,16 @@ export const api = {
             
             throw error;
         }
-    },
-
-    // Health check function
-    healthCheck: async () => {
-        try {
-            const response = await apiClient.get('/health');
-            return response;
-        } catch (error) {
-            console.error('Health check failed:', error);
-            return { success: false, message: 'API not available' };
-        }
     }
 };
+
+// Test API connectivity on module load
+api.healthCheck().then(result => {
+    if (result.success) {
+        console.log('🎉 API connection established successfully');
+    } else {
+        console.warn('⚠️ API not available, using mock data mode');
+    }
+});
 
 export default api;

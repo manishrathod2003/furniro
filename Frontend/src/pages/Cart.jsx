@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import FeaturesSection from '../components/FeaturesSection';
 import PageHeader from '../components/PageHeader';
+import { api } from "../services/api";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState({});
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Use React Router navigation
 
   // Breadcrumb configuration
   const breadcrumb = [
@@ -28,19 +31,8 @@ const Cart = () => {
       
       console.log('Fetching cart for userId:', userId);
       
-      // Fetch cart items from backend
-      const response = await fetch(`http://localhost:5000/api/cart/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      // Use centralized API service instead of direct fetch
+      const result = await api.getCartItems(userId);
       console.log('Cart API Response:', result);
       
       // Handle different response formats from your backend
@@ -55,11 +47,11 @@ const Cart = () => {
       
       // Transform data to match frontend format
       const transformedItems = items.map(item => ({
-        _id: item._id,
+        _id: item._id || item.id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        image: item.image || '/src/images/cafe_chair1.png',
+        image: item.image || '/api/placeholder/300/300', // Fixed image path
         size: item.size,
         color: item.color,
         productId: item.productId
@@ -76,7 +68,15 @@ const Cart = () => {
       const localCart = localStorage.getItem('cartItems');
       if (localCart) {
         try {
-          setCartItems(JSON.parse(localCart));
+          const parsedCart = JSON.parse(localCart);
+          // Ensure proper image paths for local data too
+          const transformedLocal = parsedCart.map(item => ({
+            ...item,
+            image: item.image?.startsWith('/src/') 
+              ? '/api/placeholder/300/300' 
+              : item.image || '/api/placeholder/300/300'
+          }));
+          setCartItems(transformedLocal);
         } catch (e) {
           console.error('Error parsing localStorage cart:', e);
           setCartItems([]);
@@ -110,22 +110,8 @@ const Cart = () => {
       
       console.log('Updating quantity for item:', itemId, 'to:', newQuantity);
       
-      // Update quantity on backend using the correct endpoint
-      const response = await fetch(`http://localhost:5000/api/cart/update/${itemId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quantity: newQuantity
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      // Use centralized API service
+      const result = await api.updateCartQuantity(itemId, newQuantity);
       console.log('Update quantity response:', result);
       
       if (!result.success) {
@@ -154,6 +140,8 @@ const Cart = () => {
       );
       
       setError(`Failed to update quantity: ${error.message}`);
+      // Clear error after 5 seconds
+      setTimeout(() => setError(null), 5000);
     } finally {
       setUpdating(prev => ({ ...prev, [itemId]: false }));
     }
@@ -169,19 +157,8 @@ const Cart = () => {
       
       console.log('Removing item:', itemId);
       
-      // Remove from backend using the correct endpoint
-      const response = await fetch(`http://localhost:5000/api/cart/remove/${itemId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
+      // Use centralized API service
+      const result = await api.removeFromCart(itemId);
       console.log('Remove item response:', result);
       
       if (!result.success) {
@@ -201,6 +178,8 @@ const Cart = () => {
       // Revert local state on error
       setCartItems(originalItems);
       setError(`Failed to remove item: ${error.message}`);
+      // Clear error after 5 seconds
+      setTimeout(() => setError(null), 5000);
     }
   };
 
@@ -209,7 +188,7 @@ const Cart = () => {
   };
 
   const handleNavigation = (path) => {
-    window.location.href = path;
+    navigate(path); // Use React Router navigation
   };
 
   // Animation variants
@@ -279,13 +258,38 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Reusable Page Header Component */}
-      <PageHeader 
+        <PageHeader
         title="Cart"
-        breadcrumb={breadcrumb}
+        breadcrumb={[{ label: "Home", path: "/" }, { label: "Cart" }]}
         backgroundImage="/src/images/shop.jpg"
         showLogo={true}
         logoSrc="/src/images/logo.png"
       />
+
+      {/* Error Alert */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="max-w-7xl mx-auto px-4 pt-4"
+          >
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{error}</span>
+              <span 
+                className="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer"
+                onClick={() => setError(null)}
+              >
+                <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <title>Close</title>
+                  <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                </svg>
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Cart Content */}
       <motion.div 
@@ -302,65 +306,26 @@ const Cart = () => {
               animate="visible"
               className="text-center py-16"
             >
-              {error ? (
-                // Error State
-                <div className="mb-8">
-                  <motion.div
-                    variants={itemVariants}
-                    className="w-32 h-32 bg-gradient-to-br from-red-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
-                  >
-                    <span className="text-4xl">⚠️</span>
-                  </motion.div>
-                  
-                  <motion.h2
-                    variants={itemVariants}
-                    className="text-2xl font-bold text-gray-900 mb-4"
-                  >
-                    Unable to load cart
-                  </motion.h2>
-                  
-                  <motion.p
-                    variants={itemVariants}
-                    className="text-gray-600 mb-6"
-                  >
-                    {error}
-                  </motion.p>
-                  
-                  <motion.button
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={fetchCartItems}
-                    className="bg-orange-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors mr-4"
-                  >
-                    Try Again
-                  </motion.button>
-                </div>
-              ) : (
-                // Empty Cart State
-                <>
-                  <motion.div
-                    variants={itemVariants}
-                    className="w-32 h-32 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
-                  >
-                    <ShoppingBag className="w-16 h-16 text-orange-400" />
-                  </motion.div>
-                  
-                  <motion.h2
-                    variants={itemVariants}
-                    className="text-3xl font-bold text-gray-900 mb-4"
-                  >
-                    Your cart is empty
-                  </motion.h2>
-                  
-                  <motion.p
-                    variants={itemVariants}
-                    className="text-gray-600 mb-8 text-lg"
-                  >
-                    Add some amazing products to your cart to continue shopping.
-                  </motion.p>
-                </>
-              )}
+              <motion.div
+                variants={itemVariants}
+                className="w-32 h-32 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
+              >
+                <ShoppingBag className="w-16 h-16 text-orange-400" />
+              </motion.div>
+              
+              <motion.h2
+                variants={itemVariants}
+                className="text-3xl font-bold text-gray-900 mb-4"
+              >
+                Your cart is empty
+              </motion.h2>
+              
+              <motion.p
+                variants={itemVariants}
+                className="text-gray-600 mb-8 text-lg"
+              >
+                Add some amazing products to your cart to continue shopping.
+              </motion.p>
               
               <motion.button
                 variants={itemVariants}
@@ -411,9 +376,12 @@ const Cart = () => {
                             className="w-20 h-20 bg-white rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-orange-100"
                           >
                             <img
-                              src={item.image || "/api/placeholder/80/80"}
+                              src={item.image}
                               alt={item.name}
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.src = '/api/placeholder/80/80';
+                              }}
                             />
                           </motion.div>
                           <div>
@@ -434,20 +402,20 @@ const Cart = () => {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)}
-                              disabled={updating[item._id || item.id] || item.quantity <= 1}
+                              onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                              disabled={updating[item._id] || item.quantity <= 1}
                               className="p-2 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed border-r border-orange-200 rounded-l-lg transition-colors"
                             >
                               <Minus size={14} />
                             </motion.button>
                             <span className="px-4 py-2 min-w-[50px] font-semibold text-gray-800">
-                              {updating[item._id || item.id] ? '...' : item.quantity}
+                              {updating[item._id] ? '...' : item.quantity}
                             </span>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)}
-                              disabled={updating[item._id || item.id]}
+                              onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                              disabled={updating[item._id]}
                               className="p-2 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed border-l border-orange-200 rounded-r-lg transition-colors"
                             >
                               <Plus size={14} />
@@ -464,7 +432,7 @@ const Cart = () => {
                             <motion.button
                               whileHover={{ scale: 1.1, rotate: 5 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => removeFromCart(item._id || item.id)}
+                              onClick={() => removeFromCart(item._id)}
                               className="p-2 text-orange-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                               title="Remove item"
                             >
@@ -513,7 +481,8 @@ const Cart = () => {
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleNavigation('/checkout')}
-                  className="w-full mt-8 bg-gradient-to-r from-gray-800 to-gray-900 text-white py-4 rounded-xl font-bold hover:from-gray-900 hover:to-black transition-all duration-300 text-lg shadow-lg"
+                  disabled={cartItems.length === 0}
+                  className="w-full mt-8 bg-gradient-to-r from-gray-800 to-gray-900 text-white py-4 rounded-xl font-bold hover:from-gray-900 hover:to-black transition-all duration-300 text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Proceed to Checkout
                 </motion.button>

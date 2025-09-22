@@ -1,6 +1,7 @@
 import React from 'react'
 import PageHeader from '../components/PageHeader'
 import FeaturesSection from '../components/FeaturesSection'
+import BlogLayout from '../components/BlogLayout'
 
 const About = () => {
   return (
@@ -12,6 +13,7 @@ const About = () => {
             showLogo={true}
             logoSrc="/src/images/logo.png"
           />
+          <BlogLayout/>
     <FeaturesSection/>
     </>
   )
