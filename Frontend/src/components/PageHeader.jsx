@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom';
 const PageHeader = ({ 
   title, 
   breadcrumb = [], 
-  backgroundImage = './shop.jpg', // Changed from /src/images/
+  backgroundImage = '/images/shop.jpg', // Changed from /src/images/
   showLogo = true,
-  logoSrc = './logo.png' // Changed from /src/images/
+  logoSrc = '/images/logo.png' // Changed from /src/images/
 }) => {
   const navigate = useNavigate();
 

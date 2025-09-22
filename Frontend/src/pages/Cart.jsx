@@ -261,9 +261,9 @@ const Cart = () => {
         <PageHeader
         title="Cart"
         breadcrumb={[{ label: "Home", path: "/" }, { label: "Cart" }]}
-        backgroundImage="/src/images/shop.jpg"
+        backgroundImage="/images/shop.jpg"
         showLogo={true}
-        logoSrc="/src/images/logo.png"
+        logoSrc="/images/logo.png"
       />
 
       {/* Error Alert */}

@@ -9,9 +9,9 @@ const About = () => {
      <PageHeader
             title="Blog"
             breadcrumb={[{ label: "Home", path: "/" }, { label: "Blog" }]}
-            backgroundImage="/src/images/shop.jpg"
+            backgroundImage="/images/shop.jpg"
             showLogo={true}
-            logoSrc="/src/images/logo.png"
+            logoSrc="/images/logo.png"
           />
           <BlogLayout/>
     <FeaturesSection/>

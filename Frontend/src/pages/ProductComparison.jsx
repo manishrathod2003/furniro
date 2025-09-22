@@ -199,9 +199,9 @@ const ProductComparison = () => {
        <PageHeader
             title="Product Comparison"
             breadcrumb={[{ label: "Home", path: "/" }, { label: "Comparison" }]}
-            backgroundImage="/src/images/shop.jpg"
+            backgroundImage="/images/shop.jpg"
             showLogo={true}
-            logoSrc="/src/images/logo.png"
+            logoSrc="/images/logo.png"
           />
 
       {/* Main Content */}

@@ -9,9 +9,9 @@ const Checkout = () => {
      <PageHeader
             title="Checkout"
             breadcrumb={[{ label: "Home", path: "/" }, { label: "Checkout" }]}
-            backgroundImage="/src/images/shop.jpg"
+            backgroundImage="/images/shop.jpg"
             showLogo={true}
-            logoSrc="/src/images/logo.png"
+            logoSrc="/images/logo.png"
           />
 
           <CheckoutSection/>

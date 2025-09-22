@@ -326,9 +326,9 @@ const Shop = () => {
       <PageHeader
         title="Shop"
         breadcrumb={[{ label: "Home", path: "/" }, { label: "Shop" }]}
-        backgroundImage="/src/images/shop.jpg"
+        backgroundImage="/images/shop.jpg"
         showLogo={true}
-        logoSrc="/src/images/logo.png"
+        logoSrc="/images/logo.png"
       />
 
       <FilterBar
