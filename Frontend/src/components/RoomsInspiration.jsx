@@ -11,29 +11,25 @@ const RoomsInspiration = () => {
       id: 1,
       category: "Bed Room",
       title: "Inner Peace",
-      image: "/images/bedroom-inspiration.jpg",
-      fallback: "/images/bedroom.png"
+      image: "/images/bedroom.png"
     },
     {
       id: 2,
       category: "Living Room", 
       title: "Modern Comfort",
-      image: "/images/living-inspiration.jpg",
-      fallback: "/images/living.png"
+      image: "/images/living.png"
     },
     {
       id: 3,
       category: "Dining Room",
       title: "Family Gathering", 
-      image: "/images/dining-inspiration.jpg",
-      fallback: "/images/dining.png"
+      image: "/images/dining.png"
     },
     {
       id: 4,
-      category: "Kitchen",
-      title: "Cozy Space", 
-      image: "/images/kitchen-inspiration.jpg",
-      fallback: "/images/dining.png"
+      category: "Cafe Space",
+      title: "Cozy Corner", 
+      image: "/images/cafe_chair1.png"
     }
   ];
 
@@ -84,12 +80,9 @@ const RoomsInspiration = () => {
               {/* Main Large Image */}
               <div className="relative flex-1 max-w-md h-96 md:h-[500px] rounded-lg overflow-hidden shadow-xl">
                 <img
-                  src={slides[currentSlide].image || slides[currentSlide].fallback}
+                  src={slides[currentSlide].image}
                   alt={slides[currentSlide].title}
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = slides[currentSlide].fallback;
-                  }}
                 />
                 
                 {/* Overlay Content */}
@@ -124,12 +117,9 @@ const RoomsInspiration = () => {
                   className="h-60 rounded-lg overflow-hidden shadow-lg"
                 >
                   <img
-                    src="/images/living-inspiration.jpg"
-                    alt="Living room inspiration"
+                    src="/images/sofa.png"
+                    alt="Sofa collection"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "/images/living.png";
-                    }}
                   />
                 </motion.div>
                 <motion.div 
@@ -137,12 +127,9 @@ const RoomsInspiration = () => {
                   className="h-48 rounded-lg overflow-hidden shadow-lg"
                 >
                   <img
-                    src="/images/dining-inspiration.jpg"
-                    alt="Dining room inspiration"
+                    src="/images/cafe_chair2.png"
+                    alt="Cafe chair design"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "/images/dining.png";
-                    }}
                   />
                 </motion.div>
               </div>
