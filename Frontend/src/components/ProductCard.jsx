@@ -25,6 +25,23 @@ const ProductCard = ({
   const [showCompareNotification, setShowCompareNotification] = useState(false);
   const [localCompareProducts, setLocalCompareProducts] = useState([]);
   
+  // Available fallback images array - same as OurProducts
+  const fallbackImages = [
+    "images/living.png",
+    "images/bedroom.png", 
+    "images/dining.png",
+    "images/sofa.png",
+    "images/cafe_chair1.png",
+    "images/cafe_chair2.png",
+    "images/bar_table.jpg",
+    "images/hero.jpg"
+  ];
+
+  // Function to get fallback image based on index
+  const getFallbackImage = (index) => {
+    return fallbackImages[index % fallbackImages.length];
+  };
+  
   // Generate consistent discount/new status based on product ID
   const productId = product._id || product.id;
   const hasDiscount = index % 3 === 0;
@@ -284,11 +301,11 @@ const ProductCard = ({
       {/* Product Image */}
       <div className="relative overflow-hidden">
         <img
-          src={product.image || "/images/cafe_chair1.png"}
+          src={product.image || getFallbackImage(index)}
           alt={product.name}
           className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
           onError={(e) => {
-            e.target.src = "/images/cafe_chair1.png";
+            e.target.src = getFallbackImage(index);
           }}
         />
         
@@ -303,8 +320,6 @@ const ProductCard = ({
             <span className="bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
               New
             </span>
-          
-          
           )}
         </div>
 
