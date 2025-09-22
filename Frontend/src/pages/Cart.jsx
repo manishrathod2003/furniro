@@ -1,22 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
 import FeaturesSection from '../components/FeaturesSection';
 import PageHeader from '../components/PageHeader';
 import { api } from "../services/api";
+
+// Image component with better error handling
+const ProductImage = ({ src, alt, className }) => {
+  const [imageSrc, setImageSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
+
+  const handleImageError = () => {
+    console.log('Image failed to load:', src);
+    if (!hasError) {
+      setHasError(true);
+      // Try different fallback options
+      const fallbacks = [
+        'https://via.placeholder.com/300x300/f97316/ffffff?text=Product+Image',
+        'https://placehold.co/300x300/f97316/ffffff?text=No+Image',
+        'https://picsum.photos/300/300?random=1'
+      ];
+      
+      setImageSrc(fallbacks[0]);
+    }
+  };
+
+  useEffect(() => {
+    setImageSrc(src);
+    setHasError(false);
+  }, [src]);
+
+  return (
+    <img
+      src={imageSrc}
+      alt={alt}
+      className={className}
+      onError={handleImageError}
+      loading="lazy"
+    />
+  );
+};
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState({});
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Use React Router navigation
+  const navigate = useNavigate();
 
   // Breadcrumb configuration
   const breadcrumb = [
     { label: 'Home', path: '/' },
-    { label: 'Cart' } // Current page - no path needed
+    { label: 'Cart' }
   ];
 
   useEffect(() => {
@@ -31,11 +67,9 @@ const Cart = () => {
       
       console.log('Fetching cart for userId:', userId);
       
-      // Use centralized API service instead of direct fetch
       const result = await api.getCartItems(userId);
       console.log('Cart API Response:', result);
       
-      // Handle different response formats from your backend
       let items = [];
       if (result.success) {
         items = result.data || [];
@@ -45,20 +79,53 @@ const Cart = () => {
         items = result;
       }
       
-      // Transform data to match frontend format
-      const transformedItems = items.map(item => ({
-        _id: item._id || item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image || '/api/placeholder/300/300', // Fixed image path
-        size: item.size,
-        color: item.color,
-        productId: item.productId
-      }));
+      // Better image URL handling
+      const transformedItems = items.map(item => {
+        let imageUrl = item.image;
+        
+        console.log('Original image URL for', item.name, ':', imageUrl);
+        
+        // Handle different image URL formats from backend
+        if (imageUrl) {
+          // If it's a relative path, make it absolute with your backend URL
+          if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
+            const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+            imageUrl = `${baseUrl}/${imageUrl.replace(/^\//, '')}`;
+          }
+          // If it's already a full URL, use as is
+          else if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            imageUrl = imageUrl;
+          }
+          // If it's a base64 image, use as is
+          else if (imageUrl.startsWith('data:image')) {
+            imageUrl = imageUrl;
+          }
+          // For any other format, construct the full URL
+          else {
+            const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+            imageUrl = `${baseUrl}/uploads/${imageUrl}`;
+          }
+        } else {
+          // Default fallback image
+          imageUrl = 'https://via.placeholder.com/300x300/f97316/ffffff?text=No+Image';
+        }
+        
+        console.log('Transformed image URL for', item.name, ':', imageUrl);
+        
+        return {
+          _id: item._id || item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: imageUrl,
+          size: item.size,
+          color: item.color,
+          productId: item.productId
+        };
+      });
       
       setCartItems(transformedItems);
-      console.log('Cart items loaded:', transformedItems);
+      console.log('Cart items loaded with image URLs:', transformedItems);
       
     } catch (error) {
       console.error('Error fetching cart items:', error);
@@ -69,12 +136,9 @@ const Cart = () => {
       if (localCart) {
         try {
           const parsedCart = JSON.parse(localCart);
-          // Ensure proper image paths for local data too
           const transformedLocal = parsedCart.map(item => ({
             ...item,
-            image: item.image?.startsWith('/src/') 
-              ? '/api/placeholder/300/300' 
-              : item.image || '/api/placeholder/300/300'
+            image: item.image || 'https://via.placeholder.com/300x300/f97316/ffffff?text=Product+Image'
           }));
           setCartItems(transformedLocal);
         } catch (e) {
@@ -110,7 +174,6 @@ const Cart = () => {
       
       console.log('Updating quantity for item:', itemId, 'to:', newQuantity);
       
-      // Use centralized API service
       const result = await api.updateCartQuantity(itemId, newQuantity);
       console.log('Update quantity response:', result);
       
@@ -140,7 +203,6 @@ const Cart = () => {
       );
       
       setError(`Failed to update quantity: ${error.message}`);
-      // Clear error after 5 seconds
       setTimeout(() => setError(null), 5000);
     } finally {
       setUpdating(prev => ({ ...prev, [itemId]: false }));
@@ -157,7 +219,6 @@ const Cart = () => {
       
       console.log('Removing item:', itemId);
       
-      // Use centralized API service
       const result = await api.removeFromCart(itemId);
       console.log('Remove item response:', result);
       
@@ -178,7 +239,6 @@ const Cart = () => {
       // Revert local state on error
       setCartItems(originalItems);
       setError(`Failed to remove item: ${error.message}`);
-      // Clear error after 5 seconds
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -188,7 +248,7 @@ const Cart = () => {
   };
 
   const handleNavigation = (path) => {
-    navigate(path); // Use React Router navigation
+    navigate(path);
   };
 
   // Animation variants
@@ -257,10 +317,10 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Reusable Page Header Component */}
-        <PageHeader
+      {/* Page Header */}
+      <PageHeader
         title="Cart"
-        breadcrumb={[{ label: "Home", path: "/" }, { label: "Cart" }]}
+        breadcrumb={breadcrumb}
         backgroundImage="/images/shop.jpg"
         showLogo={true}
         logoSrc="/images/logo.png"
@@ -299,45 +359,45 @@ const Cart = () => {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
       >
         
-          {cartItems.length === 0 ? (
+        {cartItems.length === 0 ? (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-center py-16"
+          >
             <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="text-center py-16"
+              variants={itemVariants}
+              className="w-32 h-32 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
             >
-              <motion.div
-                variants={itemVariants}
-                className="w-32 h-32 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
-              >
-                <ShoppingBag className="w-16 h-16 text-orange-400" />
-              </motion.div>
-              
-              <motion.h2
-                variants={itemVariants}
-                className="text-3xl font-bold text-gray-900 mb-4"
-              >
-                Your cart is empty
-              </motion.h2>
-              
-              <motion.p
-                variants={itemVariants}
-                className="text-gray-600 mb-8 text-lg"
-              >
-                Add some amazing products to your cart to continue shopping.
-              </motion.p>
-              
-              <motion.button
-                variants={itemVariants}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleNavigation('/shop')}
-                className="bg-gradient-to-r from-orange-600 to-amber-600 text-white px-10 py-4 rounded-xl font-semibold hover:from-orange-700 hover:to-amber-700 transition-all duration-300 shadow-lg flex items-center space-x-2 mx-auto"
-              >
-                <ArrowLeft size={20} />
-                <span>Continue Shopping</span>
-              </motion.button>
+              <ShoppingBag className="w-16 h-16 text-orange-400" />
             </motion.div>
+            
+            <motion.h2
+              variants={itemVariants}
+              className="text-3xl font-bold text-gray-900 mb-4"
+            >
+              Your cart is empty
+            </motion.h2>
+            
+            <motion.p
+              variants={itemVariants}
+              className="text-gray-600 mb-8 text-lg"
+            >
+              Add some amazing products to your cart to continue shopping.
+            </motion.p>
+            
+            <motion.button
+              variants={itemVariants}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleNavigation('/shop')}
+              className="bg-gradient-to-r from-orange-600 to-amber-600 text-white px-10 py-4 rounded-xl font-semibold hover:from-orange-700 hover:to-amber-700 transition-all duration-300 shadow-lg flex items-center space-x-2 mx-auto"
+            >
+              <ArrowLeft size={20} />
+              <span>Continue Shopping</span>
+            </motion.button>
+          </motion.div>
         ) : (
           <motion.div
             variants={containerVariants}
@@ -375,19 +435,22 @@ const Cart = () => {
                             whileHover={{ scale: 1.05 }}
                             className="w-20 h-20 bg-white rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-orange-100"
                           >
-                            <img
+                            <ProductImage
                               src={item.image}
                               alt={item.name}
                               className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.target.src = '/api/placeholder/80/80';
-                              }}
                             />
                           </motion.div>
                           <div>
                             <h3 className="font-semibold text-gray-900 group-hover:text-orange-700 transition-colors">
                               {item.name}
                             </h3>
+                            {item.size && (
+                              <p className="text-sm text-gray-500">Size: {item.size}</p>
+                            )}
+                            {item.color && (
+                              <p className="text-sm text-gray-500">Color: {item.color}</p>
+                            )}
                           </div>
                         </div>
 
