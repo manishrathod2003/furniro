@@ -1,4 +1,4 @@
-// pages/Wishlist.jsx - Updated with backend integration
+// pages/Wishlist.jsx - Updated with backend integration and image fix
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, X, Trash2 } from 'lucide-react';
@@ -13,6 +13,23 @@ const Wishlist = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Available fallback images array - same as other components
+  const fallbackImages = [
+    "images/living.png",
+    "images/bedroom.png", 
+    "images/dining.png",
+    "images/sofa.png",
+    "images/cafe_chair1.png",
+    "images/cafe_chair2.png",
+    "images/bar_table.jpg",
+    "images/hero.jpg"
+  ];
+
+  // Function to get fallback image based on index
+  const getFallbackImage = (index) => {
+    return fallbackImages[index % fallbackImages.length];
+  };
+
   // Fetch wishlist items from backend
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -25,17 +42,18 @@ const Wishlist = () => {
       setLoading(true);
       const response = await api.getUserWishlist(user._id);
       
-      // Transform the response to match component structure
-      const transformedItems = response.data.map(wishlistItem => ({
+      // Transform the response to match component structure with proper image handling
+      const transformedItems = response.data.map((wishlistItem, index) => ({
         id: wishlistItem.productId._id,
         name: wishlistItem.productId.name,
         price: wishlistItem.productId.price,
-        image: wishlistItem.productId.image || '/src/images/cafe_chair1.png',
+        image: wishlistItem.productId.image || getFallbackImage(index),
         category: wishlistItem.productId.category,
         brand: wishlistItem.productId.brand,
         description: wishlistItem.productId.shortDescription || wishlistItem.productId.description,
         inStock: wishlistItem.productId.status === 'active' && wishlistItem.productId.stock > 0,
-        addedAt: wishlistItem.addedAt
+        addedAt: wishlistItem.addedAt,
+        index: index // Store index for consistent fallback images
       }));
       
       setWishlistItems(transformedItems);
@@ -275,6 +293,9 @@ const Wishlist = () => {
                     alt={item.name}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
                     onClick={() => navigateToProduct(item.id)}
+                    onError={(e) => {
+                      e.target.src = getFallbackImage(item.index || index);
+                    }}
                   />
                   
                   {/* Remove from Wishlist Button */}
