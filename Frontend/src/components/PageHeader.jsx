@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom';
 const PageHeader = ({ 
   title, 
   breadcrumb = [], 
-  backgroundImage = '/src/images/shop.jpg',
+  backgroundImage = '/images/shop.jpg', // Changed from /src/images/
   showLogo = true,
-  logoSrc = '/src/images/logo.png'
+  logoSrc = '/images/logo.png' // Changed from /src/images/
 }) => {
   const navigate = useNavigate();
 
@@ -47,7 +47,14 @@ const PageHeader = ({
             <motion.div 
               className="w-16 h-7 flex items-center justify-center mx-auto"
             >
-              <img src={logoSrc} alt="Logo" />
+              <img 
+                src={logoSrc} 
+                alt="Logo"
+                onError={(e) => {
+                  // Fallback to a default image or hide if not found
+                  e.target.style.display = 'none';
+                }}
+              />
             </motion.div>
           </motion.div>
         )}
