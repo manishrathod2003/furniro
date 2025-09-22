@@ -20,6 +20,23 @@ const OurProducts = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
+  // Available fallback images array
+  const fallbackImages = [
+    "images/living.png",
+    "images/bedroom.png", 
+    "images/dining.png",
+    "images/sofa.png",
+    "images/cafe_chair1.png",
+    "images/cafe_chair2.png",
+    "images/bar_table.jpg",
+    "images/hero.jpg"
+  ];
+
+  // Function to get fallback image based on index
+  const getFallbackImage = (index) => {
+    return fallbackImages[index % fallbackImages.length];
+  };
+
   // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
@@ -114,7 +131,7 @@ const OurProducts = () => {
         quantity: 1,
         size: "L",
         color: "Default",
-        image: product.image || "/images/cafe_chair1.png",
+        image: product.image || getFallbackImage(0),
       };
 
       const response = await api.addToCart(cartItem);
@@ -373,8 +390,6 @@ const OurProducts = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Our Products
           </h2>
-          
-         
         </motion.div>
 
         {/* Products Grid */}
@@ -433,11 +448,11 @@ const OurProducts = () => {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={product.image || "/images/cafe_chair1.png"}
+                      src={product.image || getFallbackImage(index)}
                       alt={product.name}
                       className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        e.target.src = "/images/cafe_chair1.png";
+                        e.target.src = getFallbackImage(index);
                       }}
                       onClick={() => handleProductClick(product)}
                     />
@@ -455,8 +470,6 @@ const OurProducts = () => {
                           New
                         </div>
                       )}
-
-                     
                     </div>
 
                     {/* Hover Overlay */}
