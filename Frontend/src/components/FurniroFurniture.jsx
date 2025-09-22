@@ -55,12 +55,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-workspace-left.jpg"
-                alt="Modern workspace with laptop"
+                src="/images/living.png"
+                alt="Modern living room setup"
                 className="w-full h-80 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/living.png";
-                }}
               />
             </motion.div>
             
@@ -69,12 +66,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-chair-setup.jpg"
-                alt="Cozy chair corner"
+                src="/images/bedroom.png"
+                alt="Cozy bedroom corner"
                 className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/bedroom.png";
-                }}
               />
             </motion.div>
           </div>
@@ -86,12 +80,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-workspace.jpg"
-                alt="Clean workspace setup"
+                src="/images/dining.png"
+                alt="Clean dining setup"
                 className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/dining.png";
-                }}
               />
             </motion.div>
 
@@ -100,12 +91,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-minimalist.jpg"
-                alt="Minimalist decor"
+                src="/images/sofa.png"
+                alt="Comfortable sofa arrangement"
                 className="w-full h-72 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/living.png";
-                }}
               />
             </motion.div>
           </div>
@@ -117,12 +105,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg relative"
             >
               <img
-                src="/images/gallery-featured-dining.jpg"
-                alt="Featured dining setup"
+                src="/images/hero.jpg"
+                alt="Featured furniture setup"
                 className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/dining.png";
-                }}
               />
               {/* Yellow Border Overlay */}
               <div className="absolute inset-0 border-4 border-yellow-500 rounded-lg pointer-events-none"></div>
@@ -136,12 +121,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-bedroom.jpg"
-                alt="Modern bedroom"
+                src="/images/cafe_chair1.png"
+                alt="Modern cafe chair"
                 className="w-full h-60 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/bedroom.png";
-                }}
               />
             </motion.div>
 
@@ -150,12 +132,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-decor.jpg"
-                alt="Home decoration"
+                src="/images/cafe_chair2.png"
+                alt="Stylish cafe chair"
                 className="w-full h-52 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/living.png";
-                }}
               />
             </motion.div>
           </div>
@@ -167,12 +146,9 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg"
             >
               <img
-                src="/images/gallery-kitchen.jpg"
-                alt="Kitchen interior"
+                src="/images/bar_table.jpg"
+                alt="Bar table setup"
                 className="w-full h-72 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/dining.png";
-                }}
               />
             </motion.div>
 
@@ -181,16 +157,13 @@ const FurniroFurniture = () => {
               className="rounded-lg overflow-hidden shadow-lg relative"
             >
               <img
-                src="/images/gallery-kitchen-tools.jpg"
-                alt="Kitchen setup"
+                src="/images/shop.jpg"
+                alt="Furniture showroom"
                 className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = "/images/bedroom.png";
-                }}
               />
               {/* Name Tag */}
               <div className="absolute bottom-3 right-3 bg-yellow-500 text-black px-3 py-1 rounded text-sm font-medium">
-            
+                Featured
               </div>
             </motion.div>
           </div>
@@ -204,25 +177,29 @@ const FurniroFurniture = () => {
           viewport={{ once: true }}
           className="lg:hidden grid grid-cols-2 gap-4 mt-8"
         >
-          {Array.from({ length: 6 }, (_, index) => (
+          {[
+            { src: "/images/living.png", alt: "Living room setup" },
+            { src: "/images/bedroom.png", alt: "Bedroom furniture" },
+            { src: "/images/dining.png", alt: "Dining area" },
+            { src: "/images/sofa.png", alt: "Sofa collection" },
+            { src: "/images/cafe_chair1.png", alt: "Cafe chair design" },
+            { src: "/images/bar_table.jpg", alt: "Bar table setup" }
+          ].map((item, index) => (
             <motion.div
               key={index}
               variants={itemVariants}
-              className={`rounded-lg overflow-hidden shadow-lg ${
+              className={`rounded-lg overflow-hidden shadow-lg relative ${
                 index % 3 === 0 ? 'aspect-[4/5]' : index % 3 === 1 ? 'aspect-square' : 'aspect-[5/4]'
               }`}
             >
               <img
-                src={`/images/gallery-mobile-${index + 1}.jpg`}
-                alt={`Funiro furniture setup ${index + 1}`}
+                src={item.src}
+                alt={item.alt}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.src = index % 2 === 0 ? "/images/living.png" : "/images/bedroom.png";
-                }}
               />
               {index === 5 && (
                 <div className="absolute bottom-2 right-2 bg-yellow-500 text-black px-2 py-1 rounded text-xs font-medium">
-                  
+                  #FurniroFurniture
                 </div>
               )}
             </motion.div>
