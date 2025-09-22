@@ -10,9 +10,9 @@ const Contact = () => {
          <PageHeader
         title="Contact"
         breadcrumb={[{ label: "Home", path: "/" }, { label: "Contact" }]}
-        backgroundImage="/src/images/shop.jpg"
+        backgroundImage="/images/shop.jpg"
         showLogo={true}
-        logoSrc="/src/images/logo.png"
+        logoSrc="/images/logo.png"
       />
 
       <ContactSection/>
