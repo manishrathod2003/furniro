@@ -15,11 +15,11 @@ const ProductImage = ({ src, alt, className }) => {
     console.log('Image failed to load:', src);
     if (!hasError) {
       setHasError(true);
-      // Try different fallback options
+      // Use your local images as fallback
       const fallbacks = [
-        'https://via.placeholder.com/300x300/f97316/ffffff?text=Product+Image',
-        'https://placehold.co/300x300/f97316/ffffff?text=No+Image',
-        'https://picsum.photos/300/300?random=1'
+        '/images/sofa.png', // Your local fallback image
+        '/images/logo.png', // Another local fallback
+        'https://via.placeholder.com/300x300/f97316/ffffff?text=Product+Image'
       ];
       
       setImageSrc(fallbacks[0]);
@@ -87,10 +87,14 @@ const Cart = () => {
         
         // Handle different image URL formats from backend
         if (imageUrl) {
-          // If it's a relative path, make it absolute with your backend URL
+          // If it's a backend uploads path
           if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
             const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
             imageUrl = `${baseUrl}/${imageUrl.replace(/^\//, '')}`;
+          }
+          // If it's a frontend images path
+          else if (imageUrl.startsWith('/images/') || imageUrl.startsWith('images/')) {
+            imageUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
           }
           // If it's already a full URL, use as is
           else if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
@@ -100,14 +104,18 @@ const Cart = () => {
           else if (imageUrl.startsWith('data:image')) {
             imageUrl = imageUrl;
           }
-          // For any other format, construct the full URL
+          // Check if it's one of your local images
+          else if (['sofa.png', 'cafe_chair1.png', 'cafe_chair2.png', 'dining.png', 'living.png', 'bedroom.png', 'bar_table.jpg'].includes(imageUrl)) {
+            imageUrl = `/images/${imageUrl}`;
+          }
+          // For any other format, try backend first, then frontend
           else {
-            const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-            imageUrl = `${baseUrl}/uploads/${imageUrl}`;
+            // Try your local images first
+            imageUrl = `/images/${imageUrl}`;
           }
         } else {
-          // Default fallback image
-          imageUrl = 'https://via.placeholder.com/300x300/f97316/ffffff?text=No+Image';
+          // Default fallback to your local image
+          imageUrl = '/images/sofa.png';
         }
         
         console.log('Transformed image URL for', item.name, ':', imageUrl);
@@ -138,7 +146,7 @@ const Cart = () => {
           const parsedCart = JSON.parse(localCart);
           const transformedLocal = parsedCart.map(item => ({
             ...item,
-            image: item.image || 'https://via.placeholder.com/300x300/f97316/ffffff?text=Product+Image'
+            image: item.image || '/images/sofa.png' // Use your local image as fallback
           }));
           setCartItems(transformedLocal);
         } catch (e) {
