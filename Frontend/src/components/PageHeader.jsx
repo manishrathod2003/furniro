@@ -6,19 +6,11 @@ import { useNavigate } from 'react-router-dom';
 const PageHeader = ({ 
   title, 
   breadcrumb = [], 
-  backgroundImage,
+  backgroundImage = './shop.jpg', // Changed from /src/images/
   showLogo = true,
-  logoSrc
+  logoSrc = './logo.png' // Changed from /src/images/
 }) => {
   const navigate = useNavigate();
-
-  // Default images that will work in production
-  const defaultBgImage = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
-  const defaultLogo = 'https://via.placeholder.com/64x28/B88E2F/FFFFFF?text=FURNIRO';
-
-  // Use provided images or fallback to defaults
-  const bgImage = backgroundImage || defaultBgImage;
-  const logo = logoSrc || defaultLogo;
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -28,10 +20,9 @@ const PageHeader = ({
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="relative w-full h-80 bg-cover bg-center flex items-center justify-center"
+      className="relative w-screen h-80 bg-cover bg-center flex items-center justify-center"
       style={{ 
-        backgroundImage: `url('${bgImage}')`,
-        backgroundColor: '#f5f5f5' // Fallback color
+        backgroundImage: `url('${backgroundImage}')`,
       }}
     >
       {/* Background Overlay */}
@@ -44,7 +35,7 @@ const PageHeader = ({
         <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-yellow-300 rounded-full blur-xl"></div>
       </div>
 
-      <div className="text-center relative z-20 px-4">
+      <div className="text-center relative z-20">
         {/* Logo Section */}
         {showLogo && (
           <motion.div 
@@ -53,17 +44,15 @@ const PageHeader = ({
             transition={{ delay: 0.2 }}
             className="mb-6"
           >
-            <motion.div className="w-16 h-7 flex items-center justify-center mx-auto">
+            <motion.div 
+              className="w-16 h-7 flex items-center justify-center mx-auto"
+            >
               <img 
-                src={logo} 
-                alt="Furniro Logo"
-                className="max-w-full max-h-full object-contain"
+                src={logoSrc} 
+                alt="Logo"
                 onError={(e) => {
-                  // If logo fails to load, show text fallback
+                  // Fallback to a default image or hide if not found
                   e.target.style.display = 'none';
-                  e.target.parentNode.innerHTML = `
-                    <div class="text-orange-600 font-bold text-lg">FURNIRO</div>
-                  `;
                 }}
               />
             </motion.div>
@@ -75,7 +64,7 @@ const PageHeader = ({
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-3xl md:text-5xl font-bold mb-6 text-gray-800"
+          className="text-5xl font-bold mb-6 text-gray-800 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text"
         >
           {title}
         </motion.h1>
@@ -85,7 +74,7 @@ const PageHeader = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="flex items-center justify-center space-x-3 text-gray-600 flex-wrap"
+          className="flex items-center justify-center space-x-3 text-gray-600"
         >
           {breadcrumb.map((item, index) => (
             <React.Fragment key={index}>
@@ -107,7 +96,7 @@ const PageHeader = ({
               
               {/* Separator */}
               {index < breadcrumb.length - 1 && (
-                <span className="text-orange-600 mx-1">›</span>
+                <span className="text-orange-600">›</span>
               )}
             </React.Fragment>
           ))}
