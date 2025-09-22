@@ -1,8 +1,8 @@
-// src/services/api.js - Fixed routing and CORS issues
+// src/services/api.js - FIXED: Remove double /api issue
 import axios from 'axios';
 
 // Use environment variable with proper fallback
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL ;
 
 console.log('API Configuration:', {
     VITE_API_URL: import.meta.env.VITE_API_URL,
@@ -10,9 +10,9 @@ console.log('API Configuration:', {
     NODE_ENV: import.meta.env.NODE_ENV
 });
 
-// Create axios instance with proper configuration
+// Create axios instance with FIXED configuration
 const apiClient = axios.create({
-    baseURL: `${API_URL}/api`, // This creates: http://localhost:5000/api
+    baseURL: API_URL, // ✅ FIXED: No /api here, will be added in individual routes
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export const api = {
     healthCheck: async () => {
         try {
             console.log('🔍 Testing API connectivity...');
-            const response = await apiClient.get('/health');
+            const response = await apiClient.get('/health'); // ✅ FIXED: /health (not /api/health)
             console.log('✅ API is reachable');
             return response;
         } catch (error) {
@@ -119,8 +119,8 @@ export const api = {
     // PRODUCT FUNCTIONS
     getProducts: async (params = {}) => {
         try {
-            // GET /api/products
-            const response = await apiClient.get('/products', { params });
+            // ✅ FIXED: GET /api/products (single /api)
+            const response = await apiClient.get('/api/products', { params });
             return response;
         } catch (error) {
             console.error('Error fetching products:', error.message);
@@ -132,24 +132,47 @@ export const api = {
                     data: [
                         {
                             id: 1,
-                            name: 'Sample Product 1',
-                            price: 99.99,
-                            image: '/api/placeholder/300/300',
-                            category: 'Sample Category'
+                            name: 'Syltherine',
+                            description: 'Stylish cafe chair',
+                            price: 2500000,
+                            originalPrice: 3500000,
+                            discount: 30,
+                            image: '/images/product1.jpg',
+                            category: 'Chair'
                         },
                         {
                             id: 2,
-                            name: 'Sample Product 2',
-                            price: 149.99,
-                            image: '/api/placeholder/300/300',
-                            category: 'Sample Category'
+                            name: 'Leviosa',
+                            description: 'Stylish cafe chair',
+                            price: 2500000,
+                            image: '/images/product2.jpg',
+                            category: 'Chair'
+                        },
+                        {
+                            id: 3,
+                            name: 'Lolito',
+                            description: 'Luxury big sofa',
+                            price: 7000000,
+                            originalPrice: 14000000,
+                            discount: 50,
+                            image: '/images/product3.jpg',
+                            category: 'Sofa'
+                        },
+                        {
+                            id: 4,
+                            name: 'Respira',
+                            description: 'Outdoor bar table and stool',
+                            price: 500000,
+                            image: '/images/product4.jpg',
+                            category: 'Table',
+                            isNew: true
                         }
                     ],
                     message: 'Mock product data',
                     pagination: {
                         currentPage: params.page || 1,
                         totalPages: 1,
-                        totalItems: 2,
+                        totalItems: 4,
                         itemsPerPage: params.limit || 8
                     }
                 });
@@ -161,8 +184,8 @@ export const api = {
 
     getProductById: async (id) => {
         try {
-            // GET /api/products/:id
-            const response = await apiClient.get(`/products/${id}`);
+            // ✅ FIXED: GET /api/products/:id (single /api)
+            const response = await apiClient.get(`/api/products/${id}`);
             return response;
         } catch (error) {
             console.error(`Error fetching product ${id}:`, error.message);
@@ -191,8 +214,8 @@ export const api = {
     // CART FUNCTIONS
     getCartItems: async (userId) => {
         try {
-            // GET /api/cart/:userId
-            const response = await apiClient.get(`/cart/${userId}`);
+            // ✅ FIXED: GET /api/cart/:userId (single /api)
+            const response = await apiClient.get(`/api/cart/${userId}`);
             return response;
         } catch (error) {
             console.error('Error fetching cart items:', error.message);
@@ -211,8 +234,8 @@ export const api = {
 
     addToCart: async (cartItem) => {
         try {
-            // POST /api/cart/add
-            const response = await apiClient.post('/cart/add', cartItem);
+            // ✅ FIXED: POST /api/cart/add (single /api)
+            const response = await apiClient.post('/api/cart/add', cartItem);
             return response;
         } catch (error) {
             console.error('Error adding to cart:', error.message);
@@ -231,8 +254,8 @@ export const api = {
 
     updateCartQuantity: async (itemId, quantity) => {
         try {
-            // PUT /api/cart/update/:itemId
-            const response = await apiClient.put(`/cart/update/${itemId}`, { quantity });
+            // ✅ FIXED: PUT /api/cart/update/:itemId (single /api)
+            const response = await apiClient.put(`/api/cart/update/${itemId}`, { quantity });
             return response;
         } catch (error) {
             console.error('Error updating cart quantity:', error.message);
@@ -242,8 +265,8 @@ export const api = {
 
     removeFromCart: async (itemId) => {
         try {
-            // DELETE /api/cart/remove/:itemId
-            const response = await apiClient.delete(`/cart/remove/${itemId}`);
+            // ✅ FIXED: DELETE /api/cart/remove/:itemId (single /api)
+            const response = await apiClient.delete(`/api/cart/remove/${itemId}`);
             return response;
         } catch (error) {
             console.error('Error removing from cart:', error.message);
@@ -253,8 +276,8 @@ export const api = {
 
     clearCart: async (userId) => {
         try {
-            // DELETE /api/cart/clear/:userId
-            const response = await apiClient.delete(`/cart/clear/${userId}`);
+            // ✅ FIXED: DELETE /api/cart/clear/:userId (single /api)
+            const response = await apiClient.delete(`/api/cart/clear/${userId}`);
             return response;
         } catch (error) {
             console.error('Error clearing cart:', error.message);
@@ -264,8 +287,8 @@ export const api = {
 
     getCartCount: async (userId) => {
         try {
-            // GET /api/cart/count/:userId
-            const response = await apiClient.get(`/cart/count/${userId}`);
+            // ✅ FIXED: GET /api/cart/count/:userId (single /api)
+            const response = await apiClient.get(`/api/cart/count/${userId}`);
             return response;
         } catch (error) {
             console.error('Error fetching cart count:', error.message);
@@ -284,8 +307,8 @@ export const api = {
     // WISHLIST FUNCTIONS
     getUserWishlist: async (userId) => {
         try {
-            // GET /api/wishlist/:userId
-            const response = await apiClient.get(`/wishlist/${userId}`);
+            // ✅ FIXED: GET /api/wishlist/:userId (single /api)
+            const response = await apiClient.get(`/api/wishlist/${userId}`);
             return response;
         } catch (error) {
             console.error('Error fetching wishlist:', error.message);
@@ -304,8 +327,8 @@ export const api = {
 
     addToWishlist: async (userId, productId) => {
         try {
-            // POST /api/wishlist/add
-            const response = await apiClient.post('/wishlist/add', {
+            // ✅ FIXED: POST /api/wishlist/add (single /api)
+            const response = await apiClient.post('/api/wishlist/add', {
                 userId,
                 productId
             });
@@ -327,8 +350,8 @@ export const api = {
 
     removeFromWishlist: async (userId, productId) => {
         try {
-            // POST /api/wishlist/remove
-            const response = await apiClient.post('/wishlist/remove', {
+            // ✅ FIXED: POST /api/wishlist/remove (single /api)
+            const response = await apiClient.post('/api/wishlist/remove', {
                 userId,
                 productId
             });
@@ -350,8 +373,8 @@ export const api = {
 
     toggleWishlist: async (userId, productId) => {
         try {
-            // POST /api/wishlist/toggle
-            const response = await apiClient.post('/wishlist/toggle', {
+            // ✅ FIXED: POST /api/wishlist/toggle (single /api)
+            const response = await apiClient.post('/api/wishlist/toggle', {
                 userId,
                 productId
             });
@@ -373,8 +396,8 @@ export const api = {
 
     clearWishlist: async (userId) => {
         try {
-            // DELETE /api/wishlist/clear/:userId
-            const response = await apiClient.delete(`/wishlist/clear/${userId}`);
+            // ✅ FIXED: DELETE /api/wishlist/clear/:userId (single /api)
+            const response = await apiClient.delete(`/api/wishlist/clear/${userId}`);
             return response;
         } catch (error) {
             console.error('Error clearing wishlist:', error.message);
@@ -384,8 +407,8 @@ export const api = {
 
     getWishlistCount: async (userId) => {
         try {
-            // GET /api/wishlist/count/:userId
-            const response = await apiClient.get(`/wishlist/count/${userId}`);
+            // ✅ FIXED: GET /api/wishlist/count/:userId (single /api)
+            const response = await apiClient.get(`/api/wishlist/count/${userId}`);
             return response;
         } catch (error) {
             console.error('Error fetching wishlist count:', error.message);
@@ -403,8 +426,8 @@ export const api = {
 
     checkWishlistStatus: async (userId, productIds) => {
         try {
-            // POST /api/wishlist/check/:userId
-            const response = await apiClient.post(`/wishlist/check/${userId}`, {
+            // ✅ FIXED: POST /api/wishlist/check/:userId (single /api)
+            const response = await apiClient.post(`/api/wishlist/check/${userId}`, {
                 productIds
             });
             return response;
